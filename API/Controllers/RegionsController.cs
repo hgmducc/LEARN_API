@@ -1,5 +1,6 @@
 ﻿using API.Data;
 using API.Models.Domain;
+using API.Models.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,11 +53,25 @@ namespace API.Controllers
             //tạo biến region và lấy danh sách region có trong bảng region
             //Get data from database - domain models
             var regions = dbContext.Regions.ToList();
-             
-            //map domain models to DTOs
 
-            //return DTOs
-            return Ok(regions);
+            //map domain models to DTOs
+            var regionDTOs = new List<RegionDto>();
+
+            //duyệt từng phần tử trong danh sách regions
+            foreach (var region in regions)
+            {
+                regionDTOs.Add(new RegionDto()
+                {
+                    Id = region.Id,
+                    Code = region.Code,
+                    Name = region.Name,
+                    RegionImageUrl = region.RegionImageUrl
+                });
+            }
+
+
+            //return DTOs 
+            return Ok(regionDTOs);
 
         }
 
@@ -74,14 +89,34 @@ namespace API.Controllers
             var regions = dbContext.Regions.FirstOrDefault(x => x.Id == id);
 
             //kiểm tra kết quả trả về
-            if (regions == null) return NotFound(
-                new {
+            if (regions == null)
+            {
+                return NotFound(
+                new
+                {
+                    Status = 404,
+                    success = false,
+                    message = "không tìm thấy id"
+                });
+            }
+
+
+            var regionDTO = new RegionDto
+            {
+                Id = regions.Id,
+                Code = regions.Code,
+                Name = regions.Name,
+                RegionImageUrl = regions.RegionImageUrl
+            };
+
+            if (regionDTO == null) return NotFound(
+                new
+                {
                     Status = 404,
                     success = false,
                     message = "không tìm thấy id"
                 });
             else { return Ok(regions); }
-            
         }
     }
 }
