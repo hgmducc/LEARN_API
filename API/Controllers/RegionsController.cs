@@ -118,5 +118,38 @@ namespace API.Controllers
                 });
             else { return Ok(regions); }
         }
+
+
+        //Post tạo region mới
+
+        [HttpPost]
+        public IActionResult CreatRegion([FromBody] AddRegionRequestDto addRegionRequestDto)
+        {
+            // map DTO to domain model
+            var rgion = new Region
+            {
+                Code = addRegionRequestDto.Code,
+                Name = addRegionRequestDto.Name,
+                RegionImageUrl = addRegionRequestDto.RegionImageUrl
+            };
+
+            // sử dụng domain để tạo region
+            dbContext.Regions.Add(rgion);
+
+            dbContext.SaveChanges();
+
+            // map domain model back to DTO
+            var regionDto = new RegionDto
+            {
+                Id = rgion.Id,
+                Code = rgion.Code,
+                Name = rgion.Name,
+                RegionImageUrl = rgion.RegionImageUrl
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
+        }
+
+
     }
 }
