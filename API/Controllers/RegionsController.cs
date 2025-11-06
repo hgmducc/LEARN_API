@@ -1,8 +1,10 @@
 ﻿using API.Data;
 using API.Models.Domain;
 using API.Models.DTO;
+using API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -11,15 +13,17 @@ namespace API.Controllers
     public class RegionsController : ControllerBase
     {
         private readonly NZWalksDbContext dbContext;
+        private readonly IRegionRepository regionRepository;
 
-        public RegionsController(NZWalksDbContext dbContext)
+        public RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository)
         {
             this.dbContext = dbContext;
+            this.regionRepository = regionRepository;
         }
 
-        // lấy tất cả bảng
+        // lấy tất cả bảng 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             /*  hardcode dữ hiệu
             var regions = new List<Region>
@@ -52,7 +56,7 @@ namespace API.Controllers
             // kết nối DB dùng DbContext
             //tạo biến region và lấy danh sách region có trong bảng region
             //Get data from database - domain models
-            var regions = dbContext.Regions.ToList();
+            var regions = await regionRepository.GetAllAsyns();
 
             //map domain models to DTOs
             var regionDTOs = new List<RegionDto>();
