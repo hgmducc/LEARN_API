@@ -5,6 +5,7 @@ using API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -12,16 +13,14 @@ namespace API.Controllers
     [ApiController]
     public class RegionsController : ControllerBase
     {
-        private readonly NZWalksDbContext dbContext;
         private readonly IRegionRepository regionRepository;
 
-        public RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository)
+        public RegionsController(IRegionRepository regionRepository)
         {
-            this.dbContext = dbContext;
             this.regionRepository = regionRepository;
         }
 
-        // lấy tất cả bảng 
+        // === LẤY TẤT CẢ === 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -79,16 +78,18 @@ namespace API.Controllers
 
         }
 
+
+        // === LẤY THEO ID ===
         //lấy theo id https://localhost:port/api/regions/{id}
         [HttpGet]
         [Route("{id:Guid}")]
-        public IActionResult GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             // C1: sử dụng find() => chỉ dùng được khi tìm kiếm với khóa chinh 
             //var regions = dbContext.Regions.Find(id);
             //C2 : dùng LINQ => dùng trong mọi trường hợp, linh hoạt hơn
 
-            var regions = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regions = await regionRepository.GetRegionbyId(id);
             //kiểm tra kết quả trả về
             if (regions == null)
             {
@@ -110,18 +111,13 @@ namespace API.Controllers
                 RegionImageUrl = regions.RegionImageUrl
             };
 
-            if (regionDTO == null) return NotFound(
-                new
-                {
-                    Status = 404,
-                    success = false,
-                    message = "không tìm thấy id"
-                });
-            else { return Ok(regions); }
+            return Ok(regionDTO);
         }
-        //Post tạo region mới
+
+
+        //=== POST TẠO REGION MỚI ===
         [HttpPost]
-        public IActionResult CreatRegion([FromBody] AddRegionRequestDto addRegionRequestDto)
+        public async Task<IActionResult> CreatRegion([FromBody] AddRegionRequestDto addRegionRequestDto)
         {
             // map DTO to domain model
             var rgion = new Region
@@ -132,9 +128,7 @@ namespace API.Controllers
             };
 
             // sử dụng domain để tạo region
-            dbContext.Regions.Add(rgion);
-
-            dbContext.SaveChanges();
+            await regionRepository.creatRegion(rgion);
 
             // map domain model back to DTO
             var regionDto = new RegionDto
@@ -148,63 +142,56 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
         }
 
-        // Put cập nhật region
+
+        // === PUT CẬP NHẬT DỮ LIỆU ===
         //PUT : api/regions/{id} => truyền vào id để sửa region
         [HttpPut]
         [Route("{id:Guid}")]
-        public IActionResult UpdateRegion([FromRoute] Guid id, [FromBody] UpdateRegionsDto updateRegionsDto)
+        public async Task<IActionResult> UpdateRegion([FromRoute] Guid id, [FromBody] UpdateRegionsDto updateRegionsDto)
         {
-            // tìm, lấy region cần cập nhật theo id
-            var regionDomainModel = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+
+            // map dto sang domain model
+            var updateRegion = new Region
+            {
+                Code = updateRegionsDto.Code,
+                Name = updateRegionsDto.Name,
+                RegionImageUrl = updateRegionsDto.RegionImageUrl
+            };
+
+            updateRegion = await regionRepository.UpdateRegionbyId(id, updateRegion);
+
             //kiểm tra region có tồn tại không
-            if (regionDomainModel == null)
+            if (updateRegion == null)
             {
                 return NotFound();
             }
 
-            // cập nhật region vào dto
-
-            regionDomainModel.Code = updateRegionsDto.Code;
-            regionDomainModel.Name = updateRegionsDto.Name;
-            regionDomainModel.RegionImageUrl = updateRegionsDto.RegionImageUrl;
-
-            // lưu thay đổi vào db
-
-            dbContext.SaveChanges();
 
             // chuyển DomainModel sang DTO
             var regionDto = new RegionDto
             {
-                Id = regionDomainModel.Id,
-                Code = regionDomainModel.Code,
-                Name = regionDomainModel.Name,
-                RegionImageUrl = regionDomainModel.RegionImageUrl
+                Id = updateRegion.Id,
+                Code = updateRegion.Code,
+                Name = updateRegion.Name,
+                RegionImageUrl = updateRegion.RegionImageUrl
             };
 
             return Ok(regionDto);
         }
 
-        // Delete region
+
+        // === DELETE XÓA DỮ LIỆU ===
         //DELETE : api/regions/{id} => truyền vào id để xóa region
         [HttpDelete]
         [Route("{id:Guid}")]
-        public IActionResult DeleteRegion([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteRegion([FromRoute] Guid id)
         {
-            // tìm id cần lấy trong Domain Model
-            var regionModel = dbContext.Regions.FirstOrDefault(x => x.Id == id);
-            // kiểm tra region có cần tồn tại hay không 
+           var regionModel = await regionRepository.Delete(id);
 
             if (regionModel == null)
             {
                 return NotFound();
             }
-
-            // xóa region 
-            dbContext.Regions.Remove(regionModel);
-            dbContext.SaveChanges();
-
-            //return deleted region back
-            //map domain model to DTO
 
             var regionDto = new RegionDto
             {
