@@ -1,7 +1,7 @@
 ﻿using API.Data;
 using API.Models.Domain;
 using API.Models.DTO;
-using API.Repositories;
+using API.Repositories.IRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,6 @@
-﻿
-using API.Models.Domain;
+﻿using API.Models.Domain;
 
-namespace API.Repositories
+namespace API.Repositories.IRepositories
 {
     public interface IRegionRepository
     {

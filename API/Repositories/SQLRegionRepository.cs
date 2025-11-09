@@ -1,5 +1,6 @@
 ﻿using API.Data;
 using API.Models.Domain;
+using API.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories
