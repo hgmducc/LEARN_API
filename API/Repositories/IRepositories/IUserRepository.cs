@@ -9,7 +9,7 @@ namespace API.Repositories.IRepositories
         bool IsUniqueUser(string username);
 
         //dang nhap
-        Task<LoginResponseDTO> Login(LoginResponseDTO loginResponseDTO );
+        Task<LoginResponseDTO> Login(LoginRequestDto loginRequestDto );
 
         //dang ky
         Task<LocalUser> Register(RegisterationRequestDto registerationRequestDto);

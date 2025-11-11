@@ -10,7 +10,7 @@ using System.Text;
 namespace API.Repositories
 {
     public class UserRepository : IUserRepository
-    {
+    { 
 
         // the vao ket noi db 
         private readonly NZWalksDbContext dbContext;
@@ -37,17 +37,21 @@ namespace API.Repositories
         }
 
         // === DANG NHAP ===
-        public Task<LoginResponseDTO> Login(LoginResponseDTO loginResponseDTO)
+        public async Task<LoginResponseDTO> Login(LoginRequestDto loginRequestDto)
         {
             // lấy thông tin user từ database dựa trên username và password
 
-            var user = dbContext.LocalUsers.FirstOrDefault(x => x.UserName == loginResponseDTO.User.UserName 
-            && x.Password == loginResponseDTO.User.Password);
+            var user = dbContext.LocalUsers.FirstOrDefault(x => x.UserName.ToLower() == loginRequestDto.UserName.ToLower()
+            && x.Password == loginRequestDto.Password);
 
             // kiểm tra user có tồn tại không
             if(user == null)
             {
-                return null;
+                return  new LoginResponseDTO()
+                {
+                    Token = "",
+                    User = null
+                };
             }
 
             // nếu tồn tại user thì sinh token
@@ -66,13 +70,13 @@ namespace API.Repositories
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            LoginRequestDto loginRequestDto = new LoginRequestDto()
+            LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
                 Token = tokenHandler.WriteToken(token),
-                UserName = user
+                User = user
             };
 
-            return loginRequestDto
+            return loginResponseDTO;
 
         }
 

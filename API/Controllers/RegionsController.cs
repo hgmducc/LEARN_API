@@ -2,6 +2,7 @@
 using API.Models.Domain;
 using API.Models.DTO;
 using API.Repositories.IRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ namespace API.Controllers
 
         // === LẤY TẤT CẢ === 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             /*  hardcode dữ hiệu
@@ -83,6 +85,7 @@ namespace API.Controllers
         //lấy theo id https://localhost:port/api/regions/{id}
         [HttpGet]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "KH")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             // C1: sử dụng find() => chỉ dùng được khi tìm kiếm với khóa chinh 
