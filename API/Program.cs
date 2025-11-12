@@ -1,4 +1,5 @@
 ﻿using API.Data;
+using API.Mappings;
 using API.Repositories;
 using API.Repositories.IRepositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -77,7 +78,7 @@ builder.Services.AddDbContext<NZWalksDbContext>(options =>
 builder.Services.AddScoped<IRegionRepository,SQLRegionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 
 var app = builder.Build();

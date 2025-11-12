@@ -2,6 +2,7 @@
 using API.Models.Domain;
 using API.Models.DTO;
 using API.Repositories.IRepositories;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,12 @@ namespace API.Controllers
     public class RegionsController : ControllerBase
     {
         private readonly IRegionRepository regionRepository;
+        private readonly IMapper mapper;
 
-        public RegionsController(IRegionRepository regionRepository)
+        public RegionsController(IRegionRepository regionRepository, IMapper mapper)
         {
             this.regionRepository = regionRepository;
+            this.mapper = mapper;
         }
 
         // === LẤY TẤT CẢ === 
@@ -59,24 +62,26 @@ namespace API.Controllers
             //Get data from database - domain models
             var regions = await regionRepository.GetAllAsyns();
 
-            //map domain models to DTOs
-            var regionDTOs = new List<RegionDto>();
+            ////map domain models to DTOs
+            //var regionDTOs = new List<RegionDto>();
 
-            //duyệt từng phần tử trong danh sách regions
-            foreach (var region in regions)
-            {
-                regionDTOs.Add(new RegionDto()
-                {
-                    Id = region.Id,
-                    Code = region.Code,
-                    Name = region.Name,
-                    RegionImageUrl = region.RegionImageUrl
-                });
-            }
+            ////duyệt từng phần tử trong danh sách regions
+            //foreach (var region in regions)
+            //{
+            //    regionDTOs.Add(new RegionDto()
+            //    {
+            //        Id = region.Id,
+            //        Code = region.Code,
+            //        Name = region.Name,
+            //        RegionImageUrl = region.RegionImageUrl
+            //    });
+            //}
+
+            var regionsDto = mapper.Map<List<RegionDto>>(regions);
 
 
             //return DTOs 
-            return Ok(regionDTOs);
+            return Ok(regionsDto);
 
         }
 
