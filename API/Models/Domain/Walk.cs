@@ -13,7 +13,7 @@
         public Guid DifficultyId { get; set; }  
         public Guid RegionId { get; set; }
 
-        // thuộc tính điều hướng 
+        // thuộc tính điều hướng, khóa ngoại
 
         public Difficulty Difficulty { get; set; }
         public Region Region { get; set; }
